@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>咖啡推薦系統</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+          font-family: Arial, sans-serif;
+          background-color: #f5e5d3;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: 100vh;
+        }
+        .top-menu {
+          background-color: #6f4e37;
+          width: 100%;
+          padding: 10px 0;
+          position: fixed;
+          top: 0;
+          left: 0;
+          z-index: 1000;
+        }
+        .menu-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          justify-content: flex-end;
+          align-items: center;
+          padding: 0 20px;
+        }
+        .language-switch {
+          display: flex;
+          align-items: center;
+        }
+        .switch-bar {
+          width: 60px;
+          height: 30px;
+          background-color: #472e20;
+          border-radius: 15px;
+          position: relative;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+        .switch-handle {
+          width: 26px;
+          height: 26px;
+          background-color: #fff;
+          border-radius: 50%;
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          transition: transform 0.3s ease;
+        }
+        .switch-bar.zh .switch-handle {
+          transform: translateX(30px);
+        }
+        .switch-label {
+          color: #fff;
+          margin: 0 10px;
+          font-size: 14px;
+          font-weight: bold;
+        }
+        .header {
+          background-image: url('{% static "images/coffee-header.jpg" %}');
+          background-size: cover;
+          background-position: center;
+          width: 100%;
+          height: 400px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          margin-top: 60px;
+          margin-bottom: 20px;
+          position: relative;
+          overflow: hidden;
+        }
+        .header::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.4);
+        }
+        .header h1 {
+          font-size: 48px;
+          color: #fff;
+          text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
+          background-color: rgba(111, 78, 55, 0.7);
+          padding: 20px 40px;
+          border-radius: 10px;
+          margin: 0;
+          position: relative;
+          z-index: 1;
+        }
+        .container {
+          background-color: #fff;
+          border-radius: 10px;
+          padding: 20px;
+          box-shadow: 0 0 10px rgba(0,0,0,0.1);
+          max-width: 600px;
+          width: 100%;
+          margin-bottom: 20px;
+          position: relative;
+          overflow: hidden;
+        }
+        .container::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-image: url('{% static "images/coffee-header.jpg" %}');
+          background-size: cover;
+          background-position: center;
+          opacity: 0.2;
+          z-index: 0;
+        }
+        .container > * {
+          position: relative;
+          z-index: 1;
+        }
+        h2 {
+          color: #6f4e37;
+          text-align: center;
+        }
+        .coffee-carousel {
+          width: 100%;
+          max-width: 600px;
+          position: relative;
+          overflow: hidden;
+          margin-top: 20px;
+          aspect-ratio: 2 / 1;
+        }
+        .coffee-varieties {
+          display: flex;
+          transition: transform 0.5s ease;
+          height: 100%;
+        }
+        .coffee-variety {
+          flex: 0 0 100%;
+          height: 100%;
+          position: relative;
+          overflow: hidden;
+        }
+        .coffee-variety img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        .coffee-info {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          color: #fff;
+          padding: 15px;
+          text-align: center;
+        }
+        .coffee-info h3 {
+          margin: 0 0 5px 0;
+          font-size: 16px;
+        }
+        .coffee-info p {
+          margin: 0;
+          font-size: 12px;
+        }
+        .carousel-button {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          background-color: rgba(111, 78, 55, 0.7);
+          color: #fff;
+          border: none;
+          padding: 10px;
+          cursor: pointer;
+          font-size: 18px;
+          border-radius: 5px;
+          z-index: 10;
+        }
+        .carousel-button:hover {
+          background-color: rgba(111, 78, 55, 0.9);
+        }
+        .carousel-button.prev {
+          left: 10px;
+        }
+        .carousel-button.next {
+          right: 10px;
+        }
+        .user-info {
+          border: 2px solid #6f4e37;
+          border-radius: 5px;
+          padding: 10px;
+          margin-bottom: 20px;
+          min-height: 100px;
+          display: flex;
+          flex-direction: column;
+          background-color: rgba(255, 255, 255, 0.8);
+        }
+        #userInfoText {
+          flex-grow: 1;
+          margin-bottom: 10px;
+          white-space: pre-wrap;
+          color: #6f4e37;
+        }
+        #userInput {
+          width: 100%;
+          padding: 10px;
+          border: 1px solid #6f4e37;
+          border-radius: 5px;
+          font-size: 16px;
+          box-sizing: border-box;
+          background-color: rgba(255, 255, 255, 0.9);
+        }
+        .characteristics {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 10px;
+          margin-bottom: 20px;
+        }
+        .characteristic {
+          background-color: #6f4e37;
+          color: #fff;
+          border: none;
+          border-radius: 20px;
+          padding: 10px 15px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        .characteristic:hover {
+          background-color: #8b6b4a;
+        }
+        .button-area {
+          display: flex;
+          gap: 10px;
+        }
+        getRecommendation() {
+          flex: 1;
+          padding: 10px;
+          background-color: #6f4e37;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          font-size: 16px;
+          cursor: pointer;
+          transition: background-color 0.3s;
+        }
+        getRecommendation():hover {
+          background-color: #8b6b4a;
+        }
+        #clearBtn {
+          background-color: #d9534f;
+        }
+        #clearBtn:hover {
+          background-color: #c9302c;
+        }
+        input[type="button"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #5c3c25;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        input[type="button"]:hover {
+            background-color: #4b2f1f;
+        }
+        input[type="clearbutton"] {
+            padding: 10px 20px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #d9534f;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        input[type="clearbutton"]:hover {
+            background-color: #c9302c;
+        }
+
+
+        @media (max-width: 480px) {
+          .container {
+            padding: 10px;
+          }
+          .characteristics {
+            justify-content: center;
+          }
+          .button-area {
+            flex-direction: column;
+          }
+          .header h1 {
+            font-size: 36px;
+            padding: 15px 30px;
+          }
+          .menu-container {
+            flex-direction: center;
+            align-items: center;
+          }
+          .language-switch {
+            margin-top: 10px;
+          }
+        }
+      </style>
+    </head>
+    <body>
+        <div class="top-menu">
+            <div class="menu-container">
+                <div id="languageSwitch" class="language-switch">
+                    <span class="switch-label" data-lang-key="eng">ENG</span>
+                    <div class="switch-bar">
+                        <div class="switch-handle"></div>
+                    </div>
+                    <span class="switch-label" data-lang-key="zh">中文</span>
+                </div>
+            </div>
+        </div>
+    
+        <div class="header">
+            <h1 data-lang-key="title">咖啡推薦系統</h1>
+            <img src="static/images/coffee-header.jpg" alt="Coffee header" style="width:100%; height:100%; position: absolute; top: 0; left: 0; object-fit: cover; z-index: -1;">
+        </div>
+    
+        <div>
+            <p data-lang-key="description">寫下關於您自己的一些事：</p>
+            {% csrf_token %}
+            <textarea id="userInput" rows="4" cols="50" data-lang-key="input-placeholder" placeholder="輸入例如:性別、年齡..等"></textarea>
+            <div class="button-area">
+              <button id="getRecommendation" class="btn" data-lang-key="get-recommendation">獲取推薦</button>
+              <button id="clearInput" class="clrbtn" data-lang-key="clear">清除</button>
+            </div>
+        </div>
+    
+        <div id="result"></div>
+    
+        <div class="coffee-carousel">
+            <div class="coffee-varieties">
+                <div class="coffee-variety">
+                    <img src="{% static 'images/arabica-full.jpg' %}" alt="Arabica Coffee">
+                    <div class="coffee-info">
+                        <h3 data-lang-key="arabica">阿拉比卡</h3>
+                        <p data-lang-key="arabica-description">甜美順滑，風味複雜。最受歡迎的咖啡品種。</p>
+                    </div>
+                </div>
+                <div class="coffee-variety">
+                    <img src="{% static '/images/robusta-full.jpg' %}" alt="Robusta Coffee">
+                    <div class="coffee-info">
+                        <h3 data-lang-key="robusta">羅布斯塔</h3>
+                        <p data-lang-key="robusta-description">強烈苦味，咖啡因含量高。常用於義式濃縮咖啡</p>
+                    </div>
+                </div>
+                <div class="coffee-variety">
+                    <img src="{% static '/images/liberica-full.jpg' %}" alt="Liberica Coffee">
+                    <div class="coffee-info">
+                        <h3 data-lang-key="liberica">利比里卡</h3>
+                        <p data-lang-key="liberica-description">獨特的水果和木質風味。罕見，主要在東南亞種植。</p>
+                    </div>
+                </div>
+            </div>
+            <button class="carousel-button prev">❮</button>
+            <button class="carousel-button next">❯</button>
+        </div>
+    
+        <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
